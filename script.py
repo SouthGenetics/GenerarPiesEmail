@@ -36,13 +36,14 @@ montserrat_bold = os.path.join(fonts_dir, 'Montserrat-Bold.ttf')
 open_sans_regular = os.path.join(fonts_dir, 'OpenSans-Regular.ttf')
 
 # Tamaños de fuente
-name_font_size = 36
-position_font_size = 24
-contact_font_size = 26   # ← más grande que antes (20)
+name_font_size = 54      # más grande
+position_font_size = 36  # más grande
+contact_font_size = 32   # un poco más grande
 
 name_font = ImageFont.truetype(montserrat_bold, name_font_size)
 position_font = ImageFont.truetype(montserrat_bold, position_font_size)
 contact_font = ImageFont.truetype(open_sans_regular, contact_font_size)
+
 
 for index, row in df.iterrows():
     img = Image.new('RGB', (img_width, img_height), background_color)
@@ -51,7 +52,7 @@ for index, row in df.iterrows():
     # Logo (1.5x más grande, centrado vertical a la izquierda)
     try:
         logo = Image.open(logo_path).convert("RGBA")
-        logo_height = int(250 * 1.5)  # antes 250, ahora 375
+        logo_height = int(250 * 1.5)
         logo_width = int(logo.width * (logo_height / logo.height))
         logo = logo.resize((logo_width, logo_height), Image.Resampling.LANCZOS)
         logo_y = (img_height - logo_height) // 2
@@ -72,11 +73,11 @@ for index, row in df.iterrows():
 
     # Nombre
     draw.text((x_position, y_position), f"{row['Nombre']}", fill=text_color, font=name_font)
-    y_position += 60
+    y_position += name_font_size + 20
 
     # Puesto
     draw.text((x_position, y_position), f"{row['Puesto']}", fill=position_color, font=position_font)
-    y_position += 120  # más espacio antes de los contactos
+    y_position += position_font_size + 40
 
     # Datos de contacto
     contact_items = []
@@ -97,8 +98,11 @@ for index, row in df.iterrows():
         contact_items.append(row['Página web'])
         icons.append('web')
 
-    icon_size = (50, 50)  # iconos más grandes también
+    icon_size = (60, 60)
 
+
+    # Alineación izquierda del bloque de contacto
+    contact_x = x_position
     for i, item in enumerate(contact_items):
         if i < len(icons):
             icon_path = os.path.join(icons_dir, f"{icons[i]}.png")
@@ -111,17 +115,17 @@ for index, row in df.iterrows():
                     for px in icon.getdata()
                 ]
                 icon.putdata(data)
-                img.paste(icon, (x_position, y_position), icon)
+                img.paste(icon, (int(contact_x), int(y_position)), icon)
             except FileNotFoundError:
                 pass
 
         draw.text(
-            (x_position + 70, y_position + 8),  # más separación del icono
+            (contact_x + icon_size[0] + 20, y_position + 10),
             f"{item}",
             fill=text_color,
             font=contact_font
         )
-        y_position += 85  # más espacio entre cada línea
+        y_position += icon_size[1] + 25
 
     # Guardar imagen
     output_path = os.path.join(output_dir, f"{row['Nombre']}.png")
