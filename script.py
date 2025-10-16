@@ -1,10 +1,10 @@
 import os
 import pandas as pd
 from PIL import Image, ImageDraw, ImageFont
-from openpyxl import load_workbook  # si no lo usás, podés quitar esta importación
+from openpyxl import load_workbook  # opcional
 
 # =========================
-# Configuración de carpetas
+# Rutas
 # =========================
 current_dir = os.path.dirname(os.path.abspath(__file__))
 excel_path = os.path.join(current_dir, 'datos.xlsx')
@@ -12,217 +12,216 @@ color_path = os.path.join(current_dir, 'color.txt')
 output_dir = os.path.join(current_dir, 'imagenes_generadas')
 icons_dir = os.path.join(current_dir, 'iconos')
 fonts_dir = os.path.join(current_dir, 'fuentes')
+logo_path = os.path.join(current_dir, 'logo.png')
 
 os.makedirs(output_dir, exist_ok=True)
 
 # =========================
-# Leer color corporativo
+# Color corporativo
 # =========================
 with open(color_path, 'r') as f:
     hex_color = f.read().strip().lstrip('#')
 highlight_color = tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
 
 # =========================
-# Leer datos del Excel
+# Datos
 # =========================
 df = pd.read_excel(excel_path)
 
 # =========================
-# Configuración de la imagen
+# Lienzo y “perillas”
 # =========================
-img_width = 2000
-img_height = 700
-logo_path = os.path.join(current_dir, 'logo.png')
+IMG_W, IMG_H = 1500, 520
+BG = (255, 255, 255)
+TC = (0, 0, 0)          # texto
+PC = (84, 84, 84)       # puesto
 
-# Colores
-background_color = (255, 255, 255)
-text_color = (0, 0, 0)
-position_color = (84, 84, 84)
+# Márgenes / gaps
+LEFT_M, RIGHT_M = 80, 44
+TOP_M, BOTTOM_M = 42, 42
+DIVIDER_GAP = 36          # espacio entre el borde derecho del logo y el divisor
+AFTER_DIVIDER = 44        # espacio del divisor hasta la columna de texto
+RIGHT_COL_MIN = 560       # ancho mínimo para la columna derecha
+DIVIDER_MAX_RATIO = 0.50  # el divisor nunca más allá del 50% del ancho
 
-# Fuentes (con fallback simple)
-montserrat_bold_path = os.path.join(fonts_dir, 'Montserrat-Bold.ttf')
-open_sans_regular_path = os.path.join(fonts_dir, 'OpenSans-Regular.ttf')
+# Límites de tamaño del logo (clave para que no invada)
+LOGO_MAX_W_RATIO = 0.40   # el logo no debe pasar del 40% del ancho total
+LOGO_MAX_H_RATIO = 0.76   # del alto útil (alto menos márgenes)
+
+# Fuentes
+montserrat_bold = os.path.join(fonts_dir, 'Montserrat-Bold.ttf')
+open_sans = os.path.join(fonts_dir, 'OpenSans-Regular.ttf')
 
 def load_font(path, size):
     try:
         return ImageFont.truetype(path, size)
     except Exception:
-        # Fallback en sistemas sin esas fuentes
         return ImageFont.load_default()
 
-# Tamaños base
-name_font_size = 54
-position_font_size = 36
-contact_font_size = 32
-
-name_font_base = load_font(montserrat_bold_path, name_font_size)
-position_font = load_font(montserrat_bold_path, position_font_size)
-contact_font = load_font(open_sans_regular_path, contact_font_size)
+NAME_SIZE = 56
+ROLE_SIZE = 36
+CONTACT_SIZE = 37   # +1 vs antes, un toque más grande
 
 # =========================
-# Helpers de layout
+# Utilidades de layout
 # =========================
-RIGHT_MARGIN = 60
-TOP_MARGIN = 80
-BOTTOM_MARGIN = 80
-LEFT_MARGIN = 150
-GAP_AFTER_DIVIDER = 80
-
-def text_width(draw, text, font):
-    # ancho en px (usa textbbox para medir)
+def text_w(draw, text, font):
     bbox = draw.textbbox((0, 0), str(text), font=font)
     return bbox[2] - bbox[0]
 
-def wrap_to_width(draw, text, font, max_w):
-    """Rompe texto en palabras para que no supere max_w por línea."""
+def wrap(draw, text, font, max_w):
     text = "" if pd.isna(text) else str(text)
-    lines = []
-    for paragraph in text.split("\n"):
-        if not paragraph:
-            lines.append("")
-            continue
-        words = paragraph.split(" ")
-        cur = ""
-        for token in words:
-            t = (cur + " " + token).strip()
-            if text_width(draw, t, font) <= max_w or cur == "":
-                cur = t
-            else:
-                lines.append(cur)
-                cur = token
-        if cur:
+    words = text.split()
+    if not words:
+        return [""]
+    lines, cur = [], words[0]
+    for token in words[1:]:
+        t = f"{cur} {token}"
+        if text_w(draw, t, font) <= max_w:
+            cur = t
+        else:
             lines.append(cur)
+            cur = token
+    lines.append(cur)
     return lines
 
 def draw_wrapped(draw, x, y, text, font, fill, max_w, line_h=None):
     if line_h is None:
-        line_h = int(getattr(font, "size", 32) * 1.1)
-    for line in wrap_to_width(draw, text, font, max_w):
+        line_h = int(getattr(font, "size", 32) * 1.12)
+    for line in wrap(draw, text, font, max_w):
         draw.text((x, y), line, font=font, fill=fill)
         y += line_h
-    return y  # devuelve el nuevo y
+    return y
 
-def fit_font_size(draw, text, font_path, target_px, start_size, min_size=26):
-    """Reduce tamaño hasta que el texto entre en una línea de target_px."""
-    size = start_size
-    while size > min_size:
+def fit_one_line(draw, text, font_path, max_w, start, min_size=34):
+    size = start
+    while size >= min_size:
         f = load_font(font_path, size)
-        if text_width(draw, str(text), f) <= target_px:
+        if text_w(draw, text, f) <= max_w:
             return f
         size -= 1
     return load_font(font_path, min_size)
 
+def recolor_icon(img_rgba, rgb):
+    r, g, b = rgb
+    px = img_rgba.load()
+    w, h = img_rgba.size
+    for i in range(w):
+        for j in range(h):
+            pr, pg, pb, pa = px[i, j]
+            if pa:
+                px[i, j] = (r, g, b, pa)
+    return img_rgba
+
+def clean(v):
+    return "" if pd.isna(v) else str(v).rstrip()
+
 # =========================
-# Render por fila
+# Render
 # =========================
-for index, row in df.iterrows():
-    img = Image.new('RGB', (img_width, img_height), background_color)
+for idx, row in df.iterrows():
+    img = Image.new('RGB', (IMG_W, IMG_H), BG)
     draw = ImageDraw.Draw(img)
 
-    # --- Logo: escala por alto disponible y respeta márgenes ---
-    logo_right = LEFT_MARGIN
+    # --- Logo: escala respetando alto y ancho máximos permitidos ---
+    logo_right = LEFT_M
     try:
         logo = Image.open(logo_path).convert("RGBA")
-        max_logo_h = int((img_height - TOP_MARGIN - BOTTOM_MARGIN) * 0.7)  # 70% del alto útil
-        scale = max_logo_h / logo.height
+
+        usable_h = IMG_H - TOP_M - BOTTOM_M
+        max_logo_h = int(usable_h * LOGO_MAX_H_RATIO)
+        max_logo_w = int(IMG_W * LOGO_MAX_W_RATIO)
+
+        # escala respetando ambos límites (alto y ancho)
+        scale_h = max_logo_h / logo.height
+        scale_w = max_logo_w / logo.width
+        scale = min(scale_h, scale_w, 1.0)  # nunca agrandar más allá del 100%
+
         logo_w = int(logo.width * scale)
         logo_h = int(logo.height * scale)
         logo = logo.resize((logo_w, logo_h), Image.Resampling.LANCZOS)
-        logo_y = (img_height - logo_h) // 2
-        img.paste(logo, (LEFT_MARGIN, logo_y), logo)
-        logo_right = LEFT_MARGIN + logo_w
+        logo_y = (IMG_H - logo_h) // 2
+        img.paste(logo, (LEFT_M, logo_y), logo)
+        logo_right = LEFT_M + logo_w
     except FileNotFoundError:
-        print(f"[WARN] No se encontró logo.png en {current_dir}")
+        pass
 
-    # --- Línea divisoria: después del logo + holgura, nunca menos del 52% ---
-    divider_x = max(logo_right + 120, int(img_width * 0.52))
-    draw.line([(divider_x, TOP_MARGIN), (divider_x, img_height - BOTTOM_MARGIN)],
+    # --- Divisor adaptativo (no invadir la derecha) ---
+    # Propuesta base: pegado al logo + gap
+    divider_x = logo_right + DIVIDER_GAP
+    # Límite 1: ratio máximo
+    divider_x = min(divider_x, int(IMG_W * DIVIDER_MAX_RATIO))
+    # Límite 2: reservar ancho mínimo a la derecha
+    divider_x = min(divider_x, IMG_W - RIGHT_M - RIGHT_COL_MIN - AFTER_DIVIDER)
+    # Límite 3: mínimo lógico por si el logo es muy chico
+    divider_x = max(divider_x, LEFT_M + 220)
+
+    draw.line([(divider_x, TOP_M), (divider_x, IMG_H - BOTTOM_M)],
               fill=highlight_color, width=4)
 
-    # --- Columna derecha segura (con wrapping y margen derecho) ---
-    x_position = divider_x + GAP_AFTER_DIVIDER
-    max_text_w = img_width - RIGHT_MARGIN - x_position
+    # --- Columna derecha ---
+    col_x = divider_x + AFTER_DIVIDER
+    col_w = IMG_W - RIGHT_M - col_x
+    y = TOP_M + 44
 
-    y_position = TOP_MARGIN + 70  # respirito arriba
+    name_txt = clean(row.get('Nombre', ''))
+    role_txt = clean(row.get('Puesto', ''))
 
-    # Nombre: auto-fit si no entra en una línea
-    name_text = f"{row.get('Nombre', '')}"
-    name_font_fit = fit_font_size(draw, name_text, montserrat_bold_path, max_text_w,
-                                  start_size=name_font_size, min_size=40)
-    y_position = draw_wrapped(draw, x_position, y_position, name_text, name_font_fit,
-                              text_color, max_text_w, line_h=int(getattr(name_font_fit, "size", 40) * 1.1))
-    y_position += 10
+    name_font = fit_one_line(draw, name_txt, montserrat_bold, col_w, NAME_SIZE, min_size=40)
+    y = draw_wrapped(draw, col_x, y, name_txt, name_font, TC, col_w,
+                     line_h=int(getattr(name_font, "size", 40) * 1.08))
+    y += 6
 
-    # Puesto
-    puesto_text = f"{row.get('Puesto', '')}"
-    y_position = draw_wrapped(draw, x_position, y_position, puesto_text, position_font,
-                              position_color, max_text_w, line_h=int(getattr(position_font, "size", 36) * 1.15))
-    y_position += 20
+    role_font = load_font(montserrat_bold, ROLE_SIZE)
+    y = draw_wrapped(draw, col_x, y, role_txt, role_font, PC, col_w,
+                     line_h=int(ROLE_SIZE * 1.10))
+    y += 10
 
-    # Datos de contacto
-    contact_items = []
-    icons = []
+    # Contacto
+    contact_font = load_font(open_sans, CONTACT_SIZE)
+    line_h = int(CONTACT_SIZE * 1.12)
+    icon_size = (58, 58)  # un toque más chico que antes para ganar aire
+    line_gap = 12
 
+    items, icons = [], []
     if 'Teléfono' in df.columns and pd.notna(row['Teléfono']):
-        contact_items.append(str(row['Teléfono']))
-        icons.append('phone')
+        items.append(clean(row['Teléfono'])); icons.append('phone')
     if 'Email' in df.columns and pd.notna(row['Email']):
-        contact_items.append(str(row['Email']))
-        icons.append('email')
+        items.append(clean(row['Email'])); icons.append('email')
     if 'Dirección' in df.columns and pd.notna(row['Dirección']):
-        contact_items.append(str(row['Dirección']))
-        icons.append('location')
+        items.append(clean(row['Dirección'])); icons.append('location')
     if 'Página web' in df.columns and pd.notna(row['Página web']):
-        contact_items.append(str(row['Página web']))
-        icons.append('web')
+        items.append(clean(row['Página web'])); icons.append('web')
 
-    icon_size = (60, 60)
-    line_gap = 25
+    for i, item in enumerate(items):
+        tx = col_x + icon_size[0] + 14
+        max_w_item = IMG_W - RIGHT_M - tx
+        lines = wrap(draw, item, contact_font, max_w_item)
+        text_total_h = max(line_h * len(lines), line_h)
+        block_h = max(icon_size[1], text_total_h)
 
-    icon_size = (60, 60)
-    line_gap = 25
-
-    for i, item in enumerate(contact_items):
-        tx = x_position + icon_size[0] + 20
-        max_w_item = img_width - RIGHT_MARGIN - tx
-        line_h = int(getattr(contact_font, "size", 32) * 1.15)
-
-        # 1) Calculamos las líneas envueltas y su altura total
-        lines = wrap_to_width(draw, item, contact_font, max_w_item)
-        text_total_h = max(line_h * max(1, len(lines)), line_h)
-
-        icon_h = icon_size[1]
-        icon_w = icon_size[0]
-
-        # 2) Elegimos el alto "contenedor" y centramos ambos dentro de él
-        block_h = max(icon_h, text_total_h)
-        # offset vertical para centrar cada elemento en el bloque
-        icon_y = y_position + (block_h - icon_h) // 2
-        text_y = y_position + (block_h - text_total_h) // 2
-
-        # 3) Pegar ícono (recoloreado) centrado al bloque
+        # icon
         if i < len(icons):
             icon_path = os.path.join(icons_dir, f"{icons[i]}.png")
             try:
                 icon = Image.open(icon_path).convert("RGBA").resize(icon_size, Image.Resampling.LANCZOS)
-                icon.putdata([(*highlight_color, px[3]) if px[3] else px for px in icon.getdata()])
-                img.paste(icon, (int(x_position), int(icon_y)), icon)
+                icon = recolor_icon(icon, highlight_color)
+                icon_y = y + (block_h - icon_size[1]) // 2
+                img.paste(icon, (int(col_x), int(icon_y)), icon)
             except FileNotFoundError:
                 pass
 
-        # 4) Dibujar el bloque de texto centrado al ícono
-        ty = text_y
+        # text
+        ty = y + (block_h - text_total_h) // 2
         for line in lines:
-            draw.text((tx, ty), line, font=contact_font, fill=text_color)
+            draw.text((tx, ty), line, font=contact_font, fill=TC)
             ty += line_h
 
-        # 5) Avanzar a la siguiente fila (debajo del bloque más alto)
-        y_position += block_h + line_gap
+        y += block_h + line_gap
 
-
-        # Guardar imagen
-        nombre_salida = row.get('Nombre', f'img_{index}').replace('/', '-')
-        output_path = os.path.join(output_dir, f"{nombre_salida}.png")
-        img.save(output_path, 'PNG', dpi=(300, 300), quality=100)
+    # Guardar
+    name_out = clean(row.get('Nombre', f'img_{idx}')).replace('/', '-')
+    out_path = os.path.join(output_dir, f"{name_out}.png")
+    img.save(out_path, 'PNG', dpi=(300, 300), quality=100)
 
 print(f"Imágenes generadas en: {output_dir}")

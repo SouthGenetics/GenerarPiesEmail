@@ -1,0 +1,8 @@
+# Archivos y carpetas a ignorar
+imagenes_generadas/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.DS_Store
+~$*
