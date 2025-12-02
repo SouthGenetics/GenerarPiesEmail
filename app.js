@@ -54,6 +54,18 @@ const config = {
   leftColWidth: 260
 };
 
+// Static defaults baked into the page so every visitor gets the same defaults.
+// These are used when no explicit inputDefaults or window.__sigDefaults are provided.
+const STATIC_SIG_DEFAULTS = {
+  nameFontSize: 28,
+  roleFontSize: 10,
+  contactFontSize: 18,
+  gapAfterName: 4,
+  gapAfterRole: 6,
+  iconSize: 23,
+  leftColWidth: 304
+};
+
 let excelRows = []; // se llena cuando cargás el Excel
 
 const PREVIEW_SAMPLE_BY_BRAND = {
@@ -131,6 +143,38 @@ function applyBrandTheme(brand) {
   root.style.setProperty("--page-gradient-start", brand.gradientStart);
   root.style.setProperty("--page-gradient-mid", brand.gradientMid);
   root.style.setProperty("--page-gradient-end", brand.gradientEnd);
+}
+
+// ==============================
+// Diagnostics / Instrumentación
+// ==============================
+function addDiagnostics() {
+  // Global JS error handler (captures script errors and resource load errors when available)
+  window.addEventListener('error', (e) => {
+    const src = (e && e.target && (e.target.src || e.target.href)) || e.filename || '';
+    // Log a clear diagnostic message so you can copy the failing URL from the console
+    console.warn('[Diagnostics] window error:', e.message || e.type, src);
+  }, true);
+
+  // Promise rejections
+  window.addEventListener('unhandledrejection', (e) => {
+    console.warn('[Diagnostics] unhandledrejection:', e.reason);
+  });
+
+  // Attach onerror to images created later: also attach to current images if any
+  function attachImgLogger(img) {
+    if (!img) return;
+    img.addEventListener('error', () => {
+      console.warn('[Diagnostics] Failed to load image:', img.src);
+    });
+  }
+
+  // Attach to existing images in the page (helps with preview image failures)
+  try {
+    document.querySelectorAll('img').forEach(attachImgLogger);
+  } catch (err) {
+    // ignore if DOM not ready
+  }
 }
 
 
@@ -216,6 +260,10 @@ function updatePreviewBrandAssets() {
   document.querySelectorAll(".sig-logo").forEach(img => {
     img.src = currentBrand.logo;
     img.alt = currentBrand.label;
+    // diagnostics: log if logo fails to load
+    img.addEventListener('error', () => {
+      console.warn('[Diagnostics] Failed to load logo:', img.src);
+    });
   });
 }
 
@@ -323,6 +371,10 @@ function createSignatureDiv(row) {
   logo.src = currentBrand.logo;
   logo.className = "sig-logo";
   logo.alt = currentBrand.label;
+  // diagnostics: log if logo fails to load
+  logo.addEventListener('error', () => {
+    console.warn('[Diagnostics] Failed to load logo (createSignatureDiv):', logo.src);
+  });
   left.appendChild(logo);
 
   // Separador
@@ -358,6 +410,10 @@ function createSignatureDiv(row) {
       icon.src = "iconos/" + iconFile;
     }
     icon.alt = "";
+    // diagnostics: log if an icon fails to load
+    icon.addEventListener('error', () => {
+      console.warn('[Diagnostics] Failed to load icon (addRow):', icon.src);
+    });
 
     const span = document.createElement("span");
     span.textContent = text;
@@ -475,6 +531,91 @@ document.getElementById("btnGenerateZip").addEventListener("click", async () => 
 // ==============================
 // Init
 // ==============================
+// Enable diagnostics early
+addDiagnostics();
+
 applyConfigToCSS();
 setBrand(currentBrandKey).catch(console.error);
 renderPreviewSignature();
+// Apply signature defaults (reads input, console-saved, static or localStorage).
+// Usage:
+//   - call in console: window.applySigDefaults()
+//   - or: window.default()  (alias)
+// It will read saved values (if any) and apply them to `config` and the sliders.
+function applySigDefaults(inputDefaults) {
+  // Priority for defaults:
+  // 1. explicit inputDefaults passed to the function
+  // 2. window.__sigDefaults (useful for interactive console overrides)
+  // 3. localStorage.sigDefaults (legacy / optional persistence)
+  // Note: STATIC_SIG_DEFAULTS is NOT applied automatically anymore; pass it explicitly
+  // if you want to apply the baked-in static defaults.
+  let defs = inputDefaults || window.__sigDefaults;
+  if (!defs) {
+    try {
+      const raw = localStorage.getItem('sigDefaults');
+      defs = raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      console.warn('[Defaults] Failed to parse localStorage.sigDefaults', e);
+    }
+  }
+
+  if (!defs) {
+    console.warn('[Defaults] No signature defaults found (checked input, window.__sigDefaults, and localStorage). To apply static defaults, call applySigDefaults(STATIC_SIG_DEFAULTS) or window.applySigDefaults(STATIC_SIG_DEFAULTS).');
+    return false;
+  }
+
+  // Map incoming keys to config keys (they should match but be defensive)
+  const safeNum = v => (typeof v === 'string' || typeof v === 'number') && !isNaN(Number(v)) ? Number(v) : undefined;
+
+  const mapping = {
+    nameFontSize: 'nameFontSize',
+    roleFontSize: 'roleFontSize',
+    contactFontSize: 'contactFontSize',
+    gapAfterName: 'gapAfterName',
+    gapAfterRole: 'gapAfterRole',
+    iconSize: 'iconSize',
+    leftColWidth: 'leftColWidth'
+  };
+
+  Object.keys(mapping).forEach(k => {
+    const incoming = defs[k];
+    const num = safeNum(incoming);
+    if (typeof num !== 'undefined') {
+      config[mapping[k]] = num;
+    }
+  });
+
+  // Update slider UI values if present
+  const uiMap = {
+    nameSize: 'nameFontSize',
+    roleSize: 'roleFontSize',
+    contactSize: 'contactFontSize',
+    gapName: 'gapAfterName',
+    gapRole: 'gapAfterRole',
+    iconSize: 'iconSize',
+    leftWidth: 'leftColWidth'
+  };
+
+  Object.entries(uiMap).forEach(([id, cfgKey]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const val = config[cfgKey];
+    if (typeof val !== 'undefined') {
+      el.value = val;
+      // If other code listens to 'input' events, you can uncomment the next lines to dispatch one
+      // const ev = new Event('input', { bubbles: true, cancelable: true });
+      // el.dispatchEvent(ev);
+    }
+  });
+
+  // Apply styles and re-render preview
+  applyConfigToCSS();
+  renderPreviewSignature();
+
+  console.log('[Defaults] Applied signature defaults:', defs);
+  return true;
+}
+
+// Expose friendly names
+window.applySigDefaults = applySigDefaults;
+window.default = function() { return applySigDefaults(); };
