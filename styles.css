@@ -160,9 +160,9 @@ h1 {
 
 .signature {
   width: var(--signature-width);
-  height: var(--signature-height);
+  min-height: var(--signature-height);
   display: flex;
-  align-items: center;
+  align-items: flex-start; /* allow vertical growth when content is taller */
   padding: 20px 28px;
   box-sizing: border-box;
   border-radius: var(--radius-lg);
@@ -177,6 +177,12 @@ h1 {
   align-items: center;
   justify-content: center;
   padding-right: 18px;
+}
+
+/* Keep the left column vertically centered relative to the whole signature
+   even if the right column grows taller */
+.sig-left {
+  align-self: center;
 }
 
 .sig-logo {
