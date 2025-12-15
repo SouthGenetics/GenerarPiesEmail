@@ -1,0 +1,10 @@
+# Forzar a que todos los archivos de texto usen LF en el repositorio
+# pero se conviertan a CRLF en Windows automáticamente.
+* text=auto
+
+# Archivos que siempre deben ser LF (incluso en Windows) para evitar errores de scripts
+*.js text eol=lf
+*.mjs text eol=lf
+*.json text eol=lf
+*.css text eol=lf
+*.html text eol=lf

@@ -35,7 +35,12 @@ body {
   font-family: var(--font-body);
   min-height: 100vh;
   margin: 0;
-  background: radial-gradient(120% 120% at 50% -20%, var(--page-gradient-start) 0%, var(--page-gradient-mid) 55%, var(--page-gradient-end) 100%);
+  background: radial-gradient(
+    120% 120% at 50% -20%,
+    var(--page-gradient-start) 0%,
+    var(--page-gradient-mid) 55%,
+    var(--page-gradient-end) 100%
+  );
   color: var(--text-color);
   display: flex;
   justify-content: center;
@@ -53,8 +58,15 @@ h1 {
 
 .layout {
   display: grid;
-  grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 400px) minmax(0, 1fr);
   gap: 24px;
+  align-items: start;
+}
+
+.controls-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .panel {
@@ -73,7 +85,8 @@ h1 {
   color: #23314f;
 }
 
-.controls label {
+.controls label,
+.card-styles label {
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -83,7 +96,8 @@ h1 {
   margin-bottom: 18px;
 }
 
-.controls input[type="range"] {
+.controls input[type="range"],
+.card-styles input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
   height: 6px;
@@ -94,7 +108,8 @@ h1 {
   position: relative;
 }
 
-.controls input[type="range"]::-webkit-slider-thumb {
+.controls input[type="range"]::-webkit-slider-thumb,
+.card-styles input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
   width: 18px;
@@ -106,11 +121,13 @@ h1 {
   transition: transform 0.2s ease;
 }
 
-.controls input[type="range"]::-webkit-slider-thumb:active {
+.controls input[type="range"]::-webkit-slider-thumb:active,
+.card-styles input[type="range"]::-webkit-slider-thumb:active {
   transform: scale(1.1);
 }
 
-.controls input[type="range"]::-moz-range-thumb {
+.controls input[type="range"]::-moz-range-thumb,
+.card-styles input[type="range"]::-moz-range-thumb {
   width: 18px;
   height: 18px;
   border-radius: 50%;
@@ -120,7 +137,8 @@ h1 {
   transition: transform 0.2s ease;
 }
 
-.controls input[type="range"]::-moz-range-thumb:active {
+.controls input[type="range"]::-moz-range-thumb:active,
+.card-styles input[type="range"]::-moz-range-thumb:active {
   transform: scale(1.1);
 }
 
@@ -150,7 +168,9 @@ h1 {
   color: #ffffff;
   background: linear-gradient(135deg, var(--accent), var(--highlight-color));
   box-shadow: var(--button-shadow);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .buttons button:hover {
@@ -169,6 +189,12 @@ h1 {
   background: #ffffff;
   border: 1px solid rgba(0, 0, 0, 0.08);
   box-shadow: 0 18px 40px -36px rgba(0, 0, 0, 0.55);
+}
+
+.signature.export-clean {
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
 }
 
 .sig-left {
@@ -263,14 +289,7 @@ h1 {
 .brand-toggle {
   border: none;
   padding: 0;
-  margin: 0 0 24px;
-}
-
-.brand-toggle legend {
-  font-size: 14px;
-  font-weight: 600;
-  color: #2b3a55;
-  margin-bottom: 12px;
+  margin: 0;
 }
 
 .brand-options {
@@ -289,7 +308,10 @@ h1 {
   border: 1px solid rgba(0, 0, 0, 0.08);
   background: rgba(0, 0, 0, 0.03);
   cursor: pointer;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
 }
 
 .brand-option input {
@@ -337,4 +359,207 @@ h1 {
 
 .brand-option.is-active span {
   color: var(--accent);
+}
+
+/* ==============================
+   Nuevas Cards y Formulario
+   ============================== */
+.card-brand,
+.card-styles,
+.card-excel,
+.card-manual {
+  padding: 20px 24px;
+}
+
+.card-brand h2,
+.card-styles h2,
+.card-excel h2,
+.card-manual h2 {
+  margin-bottom: 16px;
+  font-size: 18px;
+}
+
+.card-description {
+  font-size: 13px;
+  color: #5a6a85;
+  margin: 0 0 16px 0;
+  line-height: 1.5;
+}
+
+/* Defaults bar */
+.defaults-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.btn-defaults,
+.btn-unlock {
+  flex: 1;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.btn-defaults {
+  background: linear-gradient(135deg, var(--accent), var(--highlight-color));
+  color: #fff;
+  box-shadow: var(--button-shadow);
+}
+
+.btn-defaults:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--button-shadow-hover);
+}
+
+.btn-unlock {
+  background: #f0f0f0;
+  color: #333;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.btn-unlock:hover {
+  background: #e5e5e5;
+}
+
+/* Sliders disabled state */
+.controls-column input[type="range"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Secondary button style */
+.btn-secondary {
+  border: 1px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  border-radius: var(--radius-sm);
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* Formulario manual */
+.manual-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #2b3a55;
+  margin-bottom: 14px;
+}
+
+.manual-form input[type="text"],
+.manual-form input[type="email"],
+.manual-form textarea {
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  font-size: 14px;
+  font-family: var(--font-body);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.manual-form input[type="text"]:focus,
+.manual-form input[type="email"]:focus,
+.manual-form textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.manual-form textarea {
+  min-height: 60px;
+}
+
+@supports (resize: vertical) {
+  .manual-form textarea {
+    resize: vertical;
+  }
+}
+
+.manual-form .buttons {
+  margin-top: 16px;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.manual-form .buttons button {
+  flex: 1;
+  min-width: 140px;
+}
+
+/* Preview column layout - sticky on desktop */
+.preview-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: sticky;
+  top: 24px;
+  align-self: start;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+}
+
+/* Card de descarga */
+.card-download {
+  text-align: center;
+  padding: 20px 24px;
+}
+
+.btn-download-main {
+  width: 100%;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 16px 24px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--accent), var(--highlight-color));
+  box-shadow: var(--button-shadow);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.btn-download-main:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--button-shadow-hover);
+}
+
+.download-hint {
+  margin: 12px 0 0 0;
+  font-size: 12px;
+  color: #7a8a9e;
+}
+
+@media (max-width: 1024px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  .preview-column {
+    order: -1;
+    position: static;
+    max-height: none;
+    overflow-y: visible;
+  }
 }

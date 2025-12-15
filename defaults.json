@@ -1,0 +1,9 @@
+{
+  "nameFontSize": 28,
+  "roleFontSize": 18,
+  "contactFontSize": 16,
+  "gapAfterName": 4,
+  "gapAfterRole": 6,
+  "iconSize": 23,
+  "leftColWidth": 304
+}

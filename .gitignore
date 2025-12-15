@@ -6,3 +6,22 @@ __pycache__/
 *.pyo
 *.DS_Store
 ~$*
+
+# Dependencias
+node_modules/
+
+# Archivos de log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Archivos de sistema operativo
+.DS_Store
+Thumbs.db
+
+# Build y distribución (si tienes)
+dist/
+build/
+
+# Variables de entorno (con claves secretas)
+.env

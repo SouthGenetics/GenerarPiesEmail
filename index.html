@@ -1,120 +1,196 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Editor firmas SouthGenetics</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
-  <!-- Favicon: avoid automatic 404 when browser requests /favicon.ico -->
-  <link rel="icon" href="logo1.png" type="image/png">
-  <!-- Librerías externas -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-</head>
-<body>
-  <div class="page">
-    <h1>Previsualización firma</h1>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Editor firmas SouthGenetics</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <!-- Favicon: avoid automatic 404 when browser requests /favicon.ico -->
+    <link rel="icon" href="logo1.png" type="image/png" />
+    <!-- Librerías externas -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  </head>
+  <body>
+    <div class="page">
+      <h1>Editor de Firmas</h1>
 
-    <div class="layout">
-      <!-- Controles -->
-      <section class="controls panel">
-        <fieldset class="brand-toggle">
-          <legend>Marca</legend>
-          <div class="brand-options">
-            <label class="brand-option is-active" data-brand="southgenetics">
-              <input type="radio" name="brand" value="southgenetics" checked>
-              <span>SouthGenetics</span>
-            </label>
-            <label class="brand-option" data-brand="pacific-genomics">
-              <input type="radio" name="brand" value="pacific-genomics">
-              <span>Pacific Genomics</span>
-            </label>
-          </div>
-        </fieldset>
+      <div class="layout">
+        <!-- Columna izquierda: Controles -->
+        <div class="controls-column">
+          <!-- Card: Selección de Marca -->
+          <section class="panel card-brand">
+            <h2>Marca</h2>
+            <fieldset class="brand-toggle">
+              <div class="brand-options">
+                <label class="brand-option is-active" data-brand="southgenetics">
+                  <input type="radio" name="brand" value="southgenetics" checked />
+                  <span>SouthGenetics</span>
+                </label>
+                <label class="brand-option" data-brand="pacific-genomics">
+                  <input type="radio" name="brand" value="pacific-genomics" />
+                  <span>Pacific Genomics</span>
+                </label>
+              </div>
+            </fieldset>
+          </section>
 
-        <label>
-          Nombre font size
-          <input type="range" id="nameSize" min="18" max="40" value="28">
-        </label>
-
-        <label>
-          Puesto font size
-          <input type="range" id="roleSize" min="10" max="28" value="14">
-        </label>
-
-        <label>
-          Contacto font size
-          <input type="range" id="contactSize" min="10" max="24" value="14">
-        </label>
-
-        <label>
-          Gap después del nombre
-          <input type="range" id="gapName" min="0" max="20" value="4">
-        </label>
-
-        <label>
-          Gap después del puesto
-          <input type="range" id="gapRole" min="0" max="20" value="6">
-        </label>
-
-        <label>
-          Tamaño iconos
-          <input type="range" id="iconSize" min="14" max="32" value="20">
-        </label>
-
-        <label>
-          Ancho columna logo
-          <input type="range" id="leftWidth" min="180" max="480" value="260">
-        </label>
-
-        <div class="buttons">
-          <input type="file" id="excelInput" accept=".xlsx,.xls">
-          <button id="btnGenerateImages">Generar imágenes (descargas sueltas)</button>
-          <button id="btnGenerateZip">Generar ZIP de imágenes</button>
-        </div>
-      </section>
-
-      <!-- Firma de ejemplo -->
-      <section class="preview panel">
-        <h2>Preview</h2>
-        <div id="preview-container">
-          <div class="signature" id="signature-template">
-            <div class="sig-left">
-              <img src="logo1.png" alt="SouthGenetics" class="sig-logo">
+          <!-- Card: Configuración de Estilos -->
+          <section class="panel card-styles">
+            <h2>Configuración de Estilos</h2>
+            <div class="defaults-bar">
+              <button id="btnApplyDefaults" class="btn-defaults">
+                Aplicar valores por defecto
+              </button>
+              <button id="btnUnlockSliders" class="btn-unlock" style="display: none">
+                Desbloquear
+              </button>
             </div>
-            <div class="sig-divider"></div>
-            <div class="sig-right">
-              <div class="sig-name">Juan Pérez</div>
-              <div class="sig-role">Representante de ventas</div>
 
-              <div class="sig-row">
-                <img src="iconos/phone.png" class="sig-icon" data-icon="phone.png" alt="">
-                <span>+52 55 1234 5678</span>
-              </div>
-              <div class="sig-row">
-                <img src="iconos/cellphone.png" class="sig-icon" data-icon="cellphone.png" alt="">
-                <span>+52 55 0000 0000</span>
-              </div>
-              <div class="sig-row">
-                <img src="iconos/location.png" class="sig-icon" data-icon="location.png" alt="">
-                <span>
-                  World Trade Center México – Montecito 50, piso 20 of. 314 y 15.
-                  Benito Juarez, Col. Nápoles. CP 03180
-                </span>
+            <label>
+              Nombre font size
+              <input type="range" id="nameSize" min="18" max="40" value="28" />
+            </label>
+
+            <label>
+              Puesto font size
+              <input type="range" id="roleSize" min="10" max="28" value="14" />
+            </label>
+
+            <label>
+              Contacto font size
+              <input type="range" id="contactSize" min="10" max="24" value="14" />
+            </label>
+
+            <label>
+              Gap después del nombre
+              <input type="range" id="gapName" min="0" max="20" value="4" />
+            </label>
+
+            <label>
+              Gap después del puesto
+              <input type="range" id="gapRole" min="0" max="20" value="6" />
+            </label>
+
+            <label>
+              Tamaño iconos
+              <input type="range" id="iconSize" min="14" max="32" value="20" />
+            </label>
+
+            <label>
+              Ancho columna logo
+              <input type="range" id="leftWidth" min="180" max="480" value="260" />
+            </label>
+          </section>
+
+          <!-- Card: Generación Masiva (Excel) -->
+          <section class="panel card-excel">
+            <h2>Generación Masiva (Excel)</h2>
+            <p class="card-description">
+              Cargá un archivo Excel con múltiples filas para generar firmas en lote.
+            </p>
+            <div class="buttons">
+              <button id="btnDownloadTemplate" class="btn-secondary">
+                Descargar plantilla Excel
+              </button>
+              <input type="file" id="excelInput" accept=".xlsx,.xls" />
+            </div>
+          </section>
+
+          <!-- Card: Generación Individual (Formulario) -->
+          <section class="panel card-manual">
+            <h2>Generación Individual</h2>
+            <p class="card-description">
+              Completá los campos para generar una firma. La vista previa se actualiza en tiempo
+              real.
+            </p>
+            <form id="manualForm" class="manual-form">
+              <label>
+                Nombre
+                <input type="text" id="manualNombre" placeholder="Juan Pérez" />
+              </label>
+              <label>
+                Puesto
+                <input type="text" id="manualPuesto" placeholder="Representante de ventas" />
+              </label>
+              <label>
+                Teléfono
+                <input type="text" id="manualTelefono" placeholder="+52 55 1234 5678" />
+              </label>
+              <label>
+                Celular
+                <input type="text" id="manualCelular" placeholder="+52 55 0000 0000" />
+              </label>
+              <label>
+                Dirección
+                <textarea
+                  id="manualDireccion"
+                  rows="2"
+                  placeholder="World Trade Center México – Montecito 50, piso 20 of. 314 y 15. Benito Juárez, Col. Nápoles. CP 03180"
+                ></textarea>
+              </label>
+              <label>
+                Página web
+                <input type="text" id="manualWeb" placeholder="www.southgenetics.com" />
+              </label>
+            </form>
+          </section>
+        </div>
+
+        <!-- Columna derecha: Preview y Descarga -->
+        <div class="preview-column">
+          <section class="preview panel">
+            <h2>Vista Previa</h2>
+            <div id="preview-container">
+              <div class="signature" id="signature-template">
+                <div class="sig-left">
+                  <img src="logo1.png" alt="SouthGenetics" class="sig-logo" />
+                </div>
+                <div class="sig-divider"></div>
+                <div class="sig-right">
+                  <div class="sig-name">Juan Pérez</div>
+                  <div class="sig-role">Representante de ventas</div>
+
+                  <div class="sig-row">
+                    <img class="sig-icon" data-icon="phone" alt="" />
+                    <span>+52 55 1234 5678</span>
+                  </div>
+                  <div class="sig-row">
+                    <img class="sig-icon" data-icon="cellphone" alt="" />
+                    <span>+52 55 0000 0000</span>
+                  </div>
+                  <div class="sig-row">
+                    <img class="sig-icon" data-icon="location" alt="" />
+                    <span>
+                      World Trade Center México – Montecito 50, piso 20 of. 314 y 15. Benito Juarez,
+                      Col. Nápoles. CP 03180
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+          </section>
+
+          <!-- Botón único de descarga -->
+          <section class="panel card-download">
+            <button id="btnDownloadZip" class="btn-download-main">Descargar firma(s) en ZIP</button>
+            <p class="download-hint">
+              Genera las imágenes del formulario individual o del Excel cargado.
+            </p>
+          </section>
         </div>
-      </section>
+      </div>
+
+      <!-- Contenedor oculto para firmas reales -->
+      <div id="hidden-signatures"></div>
     </div>
 
-    <!-- Contenedor oculto para firmas reales -->
-    <div id="hidden-signatures"></div>
-  </div>
-
-  <script src="app.js"></script>
-</body>
+    <script type="module" src="app.js"></script>
+  </body>
 </html>
