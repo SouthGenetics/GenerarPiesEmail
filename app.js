@@ -126,6 +126,16 @@ function addDiagnostics() {
   }
 }
 
+function safeAddEventListener(id, eventType, callback) {
+  const element = document.getElementById(id);
+  if (element) {
+    element.addEventListener(eventType, callback);
+  } else {
+    // Esto te ayudará a saber qué falta sin romper toda la app
+    console.warn(`[SafeListener] Elemento no encontrado: #${id}`);
+  }
+}
+
 function recolorSvgDataUri(dataUri, hexColor) {
   const base64Content = dataUri.split(",")[1];
   let svgContent = atob(base64Content);
@@ -194,39 +204,39 @@ async function setBrand(brandKey) {
   updateBrandToggleUI(brandKey);
 }
 
-document.getElementById("nameSize").addEventListener("input", (e) => {
+safeAddEventListener("nameSize", "input", (e) => {
   config.nameFontSize = parseInt(e.target.value, 10) || config.nameFontSize;
   applyConfigToCSS();
 });
 
-document.getElementById("contactSize").addEventListener("input", (e) => {
+safeAddEventListener("contactSize", "input", (e) => {
   config.contactFontSize = parseInt(e.target.value, 10) || config.contactFontSize;
   applyConfigToCSS();
 });
 
-document.getElementById("gapName").addEventListener("input", (e) => {
+safeAddEventListener("gapName", "input", (e) => {
   config.gapAfterName = parseInt(e.target.value, 10) || config.gapAfterName;
   applyConfigToCSS();
 });
 
-document.getElementById("gapRole").addEventListener("input", (e) => {
+safeAddEventListener("gapRole", "input", (e) => {
   config.gapAfterRole = parseInt(e.target.value, 10) || config.gapAfterRole;
   applyConfigToCSS();
 });
 
-document.getElementById("iconSize").addEventListener("input", (e) => {
+safeAddEventListener("iconSize", "input", (e) => {
   config.iconSize = parseInt(e.target.value, 10) || config.iconSize;
   applyConfigToCSS();
 });
 
-document.getElementById("leftWidth").addEventListener("input", (e) => {
+safeAddEventListener("leftWidth", "input", (e) => {
   const range = currentBrand.leftWidthRange || { min: 180, max: 480 };
   const value = parseInt(e.target.value, 10);
   config.leftColWidth = Math.min(range.max, Math.max(range.min, value));
   applyConfigToCSS();
 });
 
-document.getElementById("roleSize").addEventListener("input", (e) => {
+safeAddEventListener("roleSize", "input", (e) => {
   config.roleFontSize = parseInt(e.target.value, 10) || config.roleFontSize;
   applyConfigToCSS();
 });
@@ -239,7 +249,7 @@ document.querySelectorAll('input[name="brand"]').forEach((radio) => {
   });
 });
 
-document.getElementById("excelInput").addEventListener("change", (e) => {
+safeAddEventListener("excelInput", "change", (e) => {
   const file = e.target.files[0];
   if (!file) return;
 
@@ -404,7 +414,7 @@ function unlockSliders() {
   document.getElementById("btnUnlockSliders").style.display = "none";
 }
 
-document.getElementById("btnApplyDefaults").addEventListener("click", async () => {
+safeAddEventListener("btnApplyDefaults", "click", async () => {
   if (!STATIC_SIG_DEFAULTS) {
     await loadDefaultsFromFile();
   }
@@ -412,11 +422,11 @@ document.getElementById("btnApplyDefaults").addEventListener("click", async () =
   lockSliders();
 });
 
-document.getElementById("btnUnlockSliders").addEventListener("click", () => {
+safeAddEventListener("btnUnlockSliders", "click", () => {
   unlockSliders();
 });
 
-document.getElementById("btnDownloadTemplate").addEventListener("click", () => {
+safeAddEventListener("btnDownloadTemplate", "click", () => {
   const headers = ["Nombre", "Puesto", "Teléfono", "Celular", "Dirección", "Página web"];
   const sampleRow = [
     "Juan Pérez",
@@ -465,7 +475,7 @@ MANUAL_FORM_FIELDS.forEach((id) => {
   }
 });
 
-document.getElementById("btnDownloadZip").addEventListener("click", async () => {
+safeAddEventListener("btnDownloadZip", "click", async () => {
   currentBrandIcons = await ensureIconsForBrand(currentBrandKey);
 
   const hidden = document.getElementById("hidden-signatures");
