@@ -2,11 +2,9 @@
 // Constantes de la aplicación
 // ==============================
 
-// Icon keys for reference
-export const ICON_KEYS = ["phone", "cellphone", "location", "web"];
+export const CLAVES_ICONOS = ["phone", "cellphone", "location", "web"];
 
-// Base SVG icons as data URIs (monochrome, uses currentColor)
-export const ICON_SVGS = {
+export const SVGS_ICONOS = {
   phone:
     "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSJjdXJyZW50Q29sb3IiIGQ9Im0xNi41NTYgMTIuOTA2bC0uNDU1LjQ1M3MtMS4wODMgMS4wNzYtNC4wMzgtMS44NjJzLTEuODcyLTQuMDE0LTEuODcyLTQuMDE0bC4yODYtLjI4NmMuNzA3LS43MDIuNzc0LTEuODMuMTU3LTIuNjU0TDkuMzc0IDIuODZDOC42MSAxLjg0IDcuMTM1IDEuNzA1IDYuMjYgMi41NzVsLTEuNTcgMS41NmMtLjQzMy40MzItLjcyMy45OS0uNjg4IDEuNjFjLjA5IDEuNTg3LjgwOCA1IDQuODEyIDguOTgyYzQuMjQ3IDQuMjIyIDguMjMyIDQuMzkgOS44NjEgNC4yMzhjLjUxNi0uMDQ4Ljk2NC0uMzEgMS4zMjUtLjY3bDEuNDItMS40MTJjLjk2LS45NTMuNjktMi41ODgtLjUzOC0zLjI1NWwtMS45MS0xLjAzOWMtLjgwNi0uNDM3LTEuNzg3LS4zMDktMi40MTcuMzE3Ii8+PC9zdmc+",
   cellphone:
@@ -16,8 +14,7 @@ export const ICON_SVGS = {
   web: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgdmlld0JveD0iMCAwIDQ4IDQ4Ij48cGF0aCBmaWxsPSJjdXJyZW50Q29sb3IiIGQ9Ik0xNi41IDI0YzAgMS45LjA4NSAzLjc0Mi4yNDMgNS41aDE0LjUxNGMuMTU4LTEuNzU4LjI0My0zLjYuMjQzLTUuNXMtLjA4NS0zLjc0Mi0uMjQ0LTUuNUgxNi43NDVjLS4xNiAxLjc1OC0uMjQ1IDMuNi0uMjQ1IDUuNW0tMi43NjctNS41QTY0IDY0IDAgMCAwIDEzLjUgMjRjMCAxLjg4Ni4wOCAzLjcyNy4yMzIgNS41SDIuMTc3QzEuNzM1IDI3Ljc0IDEuNSAyNS44OTcgMS41IDI0cy4yMzUtMy43NC42NzctNS41em0zLjM2Ni0zSDMwLjljLS40NDQtMy4wMjctMS4xMTYtNS43MjYtMS45NDktNy45NDNjLS43NzktMi4wNzMtMS42NjktMy42NDgtMi41OC00LjY3NkMyNS40NTggMS44NDkgMjQuNjUyIDEuNSAyNCAxLjVzLTEuNDU4LjM1LTIuMzcyIDEuMzhjLS45MTEgMS4wMy0xLjgwMSAyLjYwNC0yLjU4IDQuNjc3Yy0uODMzIDIuMjE3LTEuNTA1IDQuOTE2LTEuOTUgNy45NDNtMTcuMTY5IDNjLjE1MyAxLjc3My4yMzMgMy42MTQuMjMzIDUuNXMtLjA4IDMuNzI3LS4yMzIgNS41aDExLjU1NWMuNDQyLTEuNzYuNjc3LTMuNjAzLjY3Ny01LjVzLS4yMzUtMy43NC0uNjc3LTUuNXptMTAuNTczLTNIMzMuOTMxYy0uNDctMy4zODgtMS4yMTQtNi40NS0yLjE3MS04Ljk5OGMtLjYxMS0xLjYyNi0xLjMyMy0zLjA4Mi0yLjEzNC00LjI5M2M2LjkyIDEuNzgyIDEyLjU1IDYuNzczIDE1LjIxMiAxMy4yOTFtLTMwLjc3IDBIMy4xNjFDNS44MjIgOC45ODIgMTEuNDUzIDMuOTkxIDE4LjM3MyAyLjIxYy0uODEgMS4yMS0xLjUyMyAyLjY2Ni0yLjEzNCA0LjI5MmMtLjk1NyAyLjU0OC0xLjcgNS42MS0yLjE3IDguOTk4bS0uMDAzIDE3SDMuMTYxYzIuNjYgNi41MTUgOC4yODYgMTEuNTA0IDE1LjIgMTMuMjg4Yy0uODEtMS4yMS0xLjUyLTIuNjY2LTIuMTMtNC4yOWMtLjk1NS0yLjU1LTEuNjk3LTUuNjEtMi4xNjUtOC45OThtMTQuODk0IDcuOTQ0Yy44My0yLjIxNyAxLjUtNC45MTYgMS45NDQtNy45NDRIMTcuMDk2Yy40NDMgMy4wMjggMS4xMTMgNS43MjcgMS45NDQgNy45NDRjLjc3OCAyLjA3MyAxLjY2NyAzLjY0NyAyLjU4IDQuNjc1Yy45MTIgMS4wMyAxLjcyIDEuMzgxIDIuMzggMS4zODFzMS40NjgtLjM1MSAyLjM4LTEuMzgxYy45MTMtMS4wMjggMS44MDItMi42MDIgMi41OC00LjY3NW0yLjgwOSAxLjA1M2MuOTU1LTIuNTQ4IDEuNjk3LTUuNjEgMi4xNjUtOC45OTdoMTAuOTA1Yy0yLjY2IDYuNTE1LTguMjg2IDExLjUwNC0xNS4yIDEzLjI4OGMuODEtMS4yMSAxLjUyLTIuNjY2IDIuMTMtNC4yOSIvPjwvc3ZnPg==",
 };
 
-// Configuración de marcas
-export const BRANDS = {
+export const MARCAS = {
   southgenetics: {
     label: "SouthGenetics",
     logo: "logo1.png",
@@ -52,8 +49,7 @@ export const BRANDS = {
   },
 };
 
-// Datos de muestra para preview por marca
-export const PREVIEW_SAMPLE_BY_BRAND = {
+export const MUESTRA_PREVIEW_POR_MARCA = {
   southgenetics: {
     Nombre: "Juan Pérez",
     Puesto: "Representante de ventas",
@@ -76,8 +72,7 @@ export const PREVIEW_SAMPLE_BY_BRAND = {
   },
 };
 
-// Configuración inicial de estilos
-export const DEFAULT_CONFIG = {
+export const CONFIG_DEFECTO = {
   nameFontSize: 28,
   roleFontSize: 14,
   contactFontSize: 14,
@@ -90,11 +85,46 @@ export const DEFAULT_CONFIG = {
   leftColWidth: 260,
 };
 
-// Escala de exportación de imágenes
-export const EXPORT_SCALE = 4;
+export const DEFAULTS_FALLBACK = {
+  nameFontSize: 28,
+  roleFontSize: 10,
+  contactFontSize: 18,
+  gapAfterName: 4,
+  gapAfterRole: 6,
+  iconSize: 23,
+  leftColWidth: 304,
+};
 
-// IDs de campos del formulario manual
-export const MANUAL_FORM_FIELDS = [
+export const MAPA_CONFIG_A_CSS = {
+  nameFontSize: "--name-font-size",
+  roleFontSize: "--role-font-size",
+  contactFontSize: "--contact-font-size",
+  gapAfterName: "--gap-after-name",
+  gapAfterRole: "--gap-after-role",
+  iconSize: "--icon-size",
+  lineGap: "--line-gap",
+  signatureWidth: "--signature-width",
+  signatureHeight: "--signature-height",
+  leftColWidth: "--left-col-width",
+};
+
+export const MAPA_MARCA_A_CSS = {
+  primary: "--accent",
+  highlight: "--highlight-color",
+  accentSoft: "--accent-soft",
+  accentShadow: "--accent-shadow",
+  buttonShadow: "--button-shadow",
+  buttonShadowHover: "--button-shadow-hover",
+  fileBorder: "--file-border",
+  fileBackground: "--file-bg",
+  gradientStart: "--page-gradient-start",
+  gradientMid: "--page-gradient-mid",
+  gradientEnd: "--page-gradient-end",
+};
+
+export const ESCALA_EXPORTACION = 4;
+
+export const CAMPOS_FORMULARIO_MANUAL = [
   "manualNombre",
   "manualPuesto",
   "manualTelefono",
@@ -103,8 +133,7 @@ export const MANUAL_FORM_FIELDS = [
   "manualWeb",
 ];
 
-// IDs de sliders
-export const SLIDER_IDS = [
+export const IDS_SLIDERS = [
   "nameSize",
   "roleSize",
   "contactSize",
@@ -114,8 +143,7 @@ export const SLIDER_IDS = [
   "leftWidth",
 ];
 
-// Mapeo de sliders a claves de config
-export const SLIDER_TO_CONFIG_MAP = {
+export const MAPA_SLIDER_A_CONFIG = {
   nameSize: "nameFontSize",
   roleSize: "roleFontSize",
   contactSize: "contactFontSize",

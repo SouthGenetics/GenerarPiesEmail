@@ -34,7 +34,7 @@ export default defineConfig([
 
       // REGLAS DE LÓGICA (Clean Code) - ESLint se encarga de esto
       "max-params": ["error", 3],
-      complexity: ["error", 15],
+      "max-statements": ["error", 15],
       eqeqeq: ["error", "always"],
       "no-var": "error",
       "prefer-const": "error",
