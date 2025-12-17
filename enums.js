@@ -109,4 +109,21 @@ export const ClaveAlmacenamiento = {
 // Mensajes de validación
 export const MensajeValidacion = {
   CAMPOS_REQUERIDOS: "Por favor, complete al menos el campo Nombre o suba un archivo Excel.",
+  FALLO_GENERAR_IMAGEN: "Fallo al generar imagen para",
 };
+
+// Tipos de toast
+export const TipoToast = {
+  WARNING: "warning",
+  ERROR: "error",
+  SUCCESS: "success",
+  INFO: "info",
+};
+
+// IDs de contenedores
+export const IdContenedor = {
+  TOAST: "toast-container",
+};
+
+// Duración de toast en ms
+export const DURACION_TOAST_MS = 5000;
