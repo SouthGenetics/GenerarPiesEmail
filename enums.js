@@ -105,3 +105,8 @@ export const PrefijoLog = {
 export const ClaveAlmacenamiento = {
   DEFAULTS_FIRMA: "sigDefaults",
 };
+
+// Mensajes de validación
+export const MensajeValidacion = {
+  CAMPOS_REQUERIDOS: "Por favor, complete al menos el campo Nombre o suba un archivo Excel.",
+};

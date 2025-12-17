@@ -36,6 +36,7 @@ import {
   RETRASO_RENDERIZADO_MS,
   PrefijoLog,
   ClaveAlmacenamiento,
+  MensajeValidacion,
 } from "./enums.js";
 
 const estadoApp = {
@@ -512,6 +513,25 @@ function obtenerFilasAProcesar() {
   return [obtenerDatosFormularioManual(false)];
 }
 
+function validarDatosParaDescarga() {
+  if (estadoApp.filasExcel.length > 0) {
+    return { valido: true };
+  }
+
+  const datosFormulario = obtenerDatosFormularioManual(false);
+  const camposRequeridos = [CampoDato.NOMBRE];
+  const camposVacios = camposRequeridos.filter((campo) => !datosFormulario[campo]);
+
+  if (camposVacios.length > 0) {
+    return {
+      valido: false,
+      mensaje: MensajeValidacion.CAMPOS_REQUERIDOS,
+    };
+  }
+
+  return { valido: true };
+}
+
 async function renderizarFirmaACanvas(fila, contenedor) {
   const divFirma = crearDivFirma(fila);
   contenedor.appendChild(divFirma);
@@ -542,6 +562,12 @@ async function agregarFirmasAZip(zip, filas, contenedor) {
 }
 
 async function manejarDescargaZip() {
+  const validacion = validarDatosParaDescarga();
+  if (!validacion.valido) {
+    alert(validacion.mensaje);
+    return;
+  }
+
   estadoApp.iconosMarcaActual = await asegurarIconosParaMarca(estadoApp.claveMarcaActual);
 
   const oculto = document.getElementById(IdDom.FIRMAS_OCULTAS);
